@@ -1,5 +1,7 @@
 package pages;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -18,6 +20,8 @@ public class TalkCardPage extends AbstractPage {
     private final By talkCardLocationContainerLocator = By.xpath("//div[contains(@class,'location')]");
     private final By talkCardDateContainerLocator = By.xpath("//div[contains(@class,'date')]");
 
+    private final Logger logger = LogManager.getLogger(TalkCardPage.class);
+
     public TalkCardPage(WebDriver driver) {
         super(driver);
     }
@@ -31,22 +35,30 @@ public class TalkCardPage extends AbstractPage {
         for (WebElement elem : dateContainer.findElements(By.tagName("span"))) {
             talksDateTime.append(elem.getText());
         }
-        return talksDateTime.toString();
+        String date = talksDateTime.toString();
+        logger.info("Talk date is " + date);
+        return date;
     }
 
     public String getTalkLocation() {
         WebElement locationContainer = talkDetailsContainer.findElement(talkCardLocationContainerLocator);
-        return locationContainer.findElement(By.tagName("span")).getText();
+        String location = locationContainer.findElement(By.tagName("span")).getText();
+        logger.info("Talk location is " + location);
+        return location;
     }
 
     public String getTalkLanguage() {
         WebElement languageContainer = talkDetailsContainer.findElement(talkCardLanguageContainerLocator);
-        return languageContainer.findElement(By.tagName("span")).getText();
+        String lang = languageContainer.findElement(By.tagName("span")).getText();
+        logger.info("Talk language is " + lang);
+        return lang;
     }
 
     public String getTalkDuration() {
         WebElement durationContainer = talkDetailsContainer.findElement(talkCardDurationContainerLocator);
-        return durationContainer.findElement(By.tagName("span")).getText();
+        String duration = durationContainer.findElement(By.tagName("span")).getText();
+        logger.info("Talk duration is " + duration);
+        return duration;
     }
 
     public List<String> getTalkCategories() {

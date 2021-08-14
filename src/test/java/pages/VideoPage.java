@@ -1,6 +1,8 @@
 package pages;
 
 import io.qameta.allure.Step;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -23,6 +25,8 @@ public class VideoPage extends AbstractPage {
     private final By talkCardNameLocator = By.xpath("//div[@class='evnt-talk-name']//span");
     private final By filtersValueLocator = By.xpath(".//div[@class='evnt-filter-item']");
     private final By filtersValueContainerLocator = By.xpath("./following-sibling::div");
+
+    private final Logger logger = LogManager.getLogger(VideoPage.class);
 
     public VideoPage(WebDriver driver) {
         super(driver);
@@ -59,6 +63,7 @@ public class VideoPage extends AbstractPage {
     @Step("Insert value \"{0}\" into search field")
     public VideoPage searchEvents(String searchValue) {
         waitUntilBecomesVisible(searchInput).sendKeys(searchValue);
+        logger.info("Searching talks by " + searchValue);
         waitGlobalLoad();
         return new VideoPage(driver);
     }
@@ -120,6 +125,7 @@ public class VideoPage extends AbstractPage {
         filterValuesMap.get(value).click();
         waitGlobalLoad();
         filterTypeElement.click();
+        logger.info("Apply " + filterType + " filter with value " + value);
         return new VideoPage(driver);
     }
 
@@ -131,6 +137,7 @@ public class VideoPage extends AbstractPage {
     public TalkCardPage goToTalkCard(int cardNumber) {
         getTalksCards().get(cardNumber - 1).click();
         waitGlobalLoad();
+        logger.info("Go to talk number " + cardNumber);
         return new TalkCardPage(driver);
     }
 

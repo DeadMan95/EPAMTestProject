@@ -1,6 +1,8 @@
 package pages;
 
 import io.qameta.allure.Step;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class EventsPage extends AbstractPage {
+
+    private final Logger logger = LogManager.getLogger(EventsPage.class);
 
     private final String locationFilterId = "filter_location";
     private final String eventCardsContainerXPath = "//div[@class='evnt-cards-container']";
@@ -54,17 +58,22 @@ public class EventsPage extends AbstractPage {
 
     @Step("Validate count of upcoming events")
     public int getUpcomingEventsCounterValue() {
-        return Integer.parseInt(waitUntilBecomesVisible(upcomingEventCardsCounter).getText());
+        int count = Integer.parseInt(waitUntilBecomesVisible(upcomingEventCardsCounter).getText());
+        logger.info("Count of upcoming events is " + count);
+        return count;
     }
 
     @Step("Validate count of past events")
     public int getPastEventsCounterValue() {
-        return Integer.parseInt(waitUntilBecomesVisible(pastEventCardsCounter).getText());
+        int count = Integer.parseInt(waitUntilBecomesVisible(pastEventCardsCounter).getText());
+        logger.info("Count of past events is " + count);
+        return count;
     }
 
     public int getCountOfEventsOnPage() {
-        List<WebElement> cardsList = getListOfCards();
-        return cardsList.size();
+        int count = getListOfCards().size();
+        logger.info("Count of events on page is " + count);
+        return count;
     }
 
     @Step("Go to Past events page")
@@ -79,37 +88,47 @@ public class EventsPage extends AbstractPage {
     }
 
     private String getEventLanguage(WebElement element) {
-        return element
+        String lang = element
                 .findElement(eventCardLanguageLocator)
                 .findElement(By.tagName("span"))
                 .getText();
+        logger.info("Language of event is " + lang);
+        return lang;
     }
 
     private String getEventName(WebElement element) {
-        return element
+        String name = element
                 .findElement(eventCardNameLocator)
                 .findElement(By.tagName("span"))
                 .getText();
+        logger.info("Name of event is " + name);
+        return name;
     }
 
     public String getEventDate(WebElement element) {
-        return element
+        String date = element
                 .findElement(eventDateContainerLocator)
                 .findElement(eventDateLocator)
                 .getText();
+        logger.info("Date of event is " + date);
+        return date;
     }
 
     private String getEventStatus(WebElement element) {
-        return element
+        String status = element
                 .findElement(eventDateContainerLocator)
                 .findElement(eventStatusLocator)
                 .getText();
+        logger.info("Status of event is " + status);
+        return status;
     }
 
     private String getEventSpeakerName(WebElement element) {
         scrollDown();
         moveToElement(element.findElement(speakerPhotoLocator));
-        return driver.findElement(speakerNameLocator).getText();
+        String speakerName = driver.findElement(speakerNameLocator).getText();
+        logger.info("Speaker name of event is " + speakerName);
+        return speakerName;
     }
 
     @Step("Validate card number {0} information")
@@ -123,6 +142,12 @@ public class EventsPage extends AbstractPage {
                 getEventSpeakerName(selectedElement));
     }
 
+    /**
+     * Вычисление даты из строки
+     * (вышел достаточно страшный метод, но он позволяет взять дату с карточки, не заходя внутрь)
+     * @param unformattedDate Строка вида 1 - 4 Jan 2021
+     * @return массив LocalDate из 2-х дат
+     */
     public static LocalDate[] parseEventDate(String unformattedDate) {
         String[] arr = unformattedDate.split(" - ");
         String[] dateEndArray = arr[1].split(" ");
@@ -158,6 +183,7 @@ public class EventsPage extends AbstractPage {
         locationFilter.click();
         locationFilter.findElement(searchLocationFieldLocator).sendKeys(location);
         driver.findElement(By.xpath("//span[text()='" + location + "']")).click();
+        logger.info("Select location filter with value = " + location);
         waitGlobalLoad();
         return new EventsPage(driver);
     }

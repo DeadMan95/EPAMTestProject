@@ -1,0 +1,93 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven'
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    environment {
+        LC_ALL = 'en_US.UTF-8'
+        LANG = 'en_US.UTF-8'
+        LANGUAGE = 'en_US.UTF-8'
+        EMAIL_TO = 'mokujin95@gmail.com'
+    }
+
+    parameters {
+        string(name: 'GIT_URL', defaultValue: 'https://github.com/DeadMan95/EPAMTestProject.git', description: 'The target git url')
+        string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'The target git branch')
+    }
+
+    stages {
+        stage('Pull from GitHub') {
+            steps {
+                notifyStart()
+                git([
+                        url   : "${params.GIT_URL}",
+                        branch: "${params.GIT_BRANCH}"
+                ])
+            }
+        }
+        stage('Run maven clean test') {
+            steps {
+                bat 'mvn clean test'
+            }
+        }
+        stage('Backup and Reports') {
+            steps {
+                archiveArtifacts artifacts: '**/target/', fingerprint: true
+            }
+            post {
+                always {
+                    script {
+
+                        allure([
+                                includeProperties: false,
+                                jdk              : '',
+                                properties       : [],
+                                reportBuildPolicy: 'ALWAYS',
+                                results          : [[path: 'target/allure-results']]
+                        ])
+                        println('allure report created')
+
+                        def branch = bat(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD\n').trim().tokenize().last()
+                        println("branch= " + branch)
+
+                        def summary = junit testResults: '**/target/surefire-reports/*.xml'
+                        println("summary generated")
+
+                        notifyEnd(summary, branch)
+                    }
+                }
+            }
+        }
+    }
+}
+
+def notifyStart(){
+    def colorCode = '#0000FF'
+    def message = "START: Job '${env.JOB_NAME}', Build ${env.BUILD_NUMBER}. \nMore info at: ${env.BUILD_URL}"
+
+    mail to: "${EMAIL_TO}",
+        subject: "Jenkins notify",
+        body: message
+
+    slackSend(color: colorCode, message: message)
+}
+
+def notifyEnd(summary, branch) {
+    def message = "${currentBuild.currentResult}: Job '${env.JOB_NAME}', Build ${env.BUILD_NUMBER}, Branch = ${branch}. \nPassed time: ${currentBuild.durationString}. \n\nTESTS:\nTotal = ${summary.totalCount},\nFailures = ${summary.failCount},\nSkipped = ${summary.skipCount},\nPassed = ${summary.passCount} \n\nMore info at: ${env.BUILD_URL}"
+
+    mail to: "${EMAIL_TO}",
+        subject: "Jenkins notify",
+        body: message
+
+    def colorCode = '#FF0000'
+    if (currentBuild.currentResult == 'SUCCESS'){
+        colorCode = '#00FF00'
+    }
+
+    slackSend(color: colorCode, message: message)
+}
