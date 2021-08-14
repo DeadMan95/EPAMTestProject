@@ -1,34 +1,43 @@
 package pages;
 
 import io.qameta.allure.Step;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
 public class MainPage extends AbstractPage {
 
     private final String url = "https://events.epam.com/";
-    private final By eventsButtonLocator = By.xpath("//*[@href='/events']");
-    private final By videoButtonLocator = By.xpath("//*[contains(@href, '/video')]");
+    private final String eventsButtonXPath = "//*[@href='/events']";
+    private final String videoButtonXPath = "//*[contains(@href, '/video')]";
 
     public MainPage(WebDriver driver) {
         super(driver);
     }
 
+    @FindBy(xpath = eventsButtonXPath)
+    WebElement eventsButton;
+
+    @FindBy(xpath = videoButtonXPath)
+    WebElement videoButton;
+
     @Step("Open main page")
     public MainPage open() {
         driver.get(url);
+        waitGlobalLoad();
         return new MainPage(driver);
     }
 
     @Step("Go to events page")
     public EventsPage goToEventsPage() {
-        driver.findElement(eventsButtonLocator).click();
+        eventsButton.click();
+        waitGlobalLoad();
         return new EventsPage(driver);
     }
 
     @Step("Go to video page")
     public VideoPage goToVideoPage() {
-        driver.findElement(videoButtonLocator).click();
+        videoButton.click();
         waitGlobalLoad();
         return new VideoPage(driver);
     }

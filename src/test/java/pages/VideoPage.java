@@ -13,13 +13,16 @@ import java.util.Map;
 
 public class VideoPage extends AbstractPage {
 
-    private final String filterContainerXPath = "//div[@class='evnt-default-filters']";
+    private final String moreFiltersButtonXPath = "//span[text()='More Filters']";
+    private final String eventCardsContainerXPath = "//div[contains(@class,'evnt-cards-container')]";
     private final String searchInputXPath = "//div[contains(@class,'evnt-search-filter')]" +
             "//input[contains(@class,'evnt-search')]";
-    private final String eventCardsContainerXPath = "//div[contains(@class,'evnt-cards-container')]";
-    private final String eventCardXPath = "//div[contains(@class, 'evnt-talk-card')]";
 
-    private final By eventCardLocator = By.xpath(eventCardXPath);
+    private final By eventCardLocator = By.xpath("//div[contains(@class, 'evnt-talk-card')]");
+    private final By talkCardLocator = By.className("evnt-talk-card");
+    private final By talkCardNameLocator = By.xpath("//div[@class='evnt-talk-name']//span");
+    private final By filtersValueLocator = By.xpath(".//div[@class='evnt-filter-item']");
+    private final By filtersValueContainerLocator = By.xpath("./following-sibling::div");
 
     public VideoPage(WebDriver driver) {
         super(driver);
@@ -49,6 +52,10 @@ public class VideoPage extends AbstractPage {
     @FindBy(id = "filter_talk_level")
     WebElement talkLevelFilterElement;
 
+    @FindBy(xpath = moreFiltersButtonXPath)
+    WebElement moreFiltersButton;
+
+
     @Step("Insert value \"{0}\" into search field")
     public VideoPage searchEvents(String searchValue) {
         waitUntilBecomesVisible(searchInput).sendKeys(searchValue);
@@ -64,7 +71,7 @@ public class VideoPage extends AbstractPage {
     public boolean checkCardsName(String expectedValue) {
         for (WebElement elem : getListOfCards()
         ) {
-            if (!elem.findElement(By.xpath("//div[@class='evnt-talk-name']//span")).getText().contains(expectedValue))
+            if (!elem.findElement(talkCardNameLocator).getText().contains(expectedValue))
                 return false;
         }
         return true;
@@ -72,7 +79,8 @@ public class VideoPage extends AbstractPage {
 
     @Step("Click \"More filters\"")
     public VideoPage moreFiltersClick() {
-        driver.findElement(By.xpath("//span[text()='More Filters']")).click();
+        waitGlobalLoad();
+        moreFiltersButton.click();
         return new VideoPage(driver);
     }
 
@@ -92,7 +100,9 @@ public class VideoPage extends AbstractPage {
     }
 
     public Map<String, WebElement> getFilterValuesMap(WebElement element) {
-        List<WebElement> filterValuesList = element.findElement(By.xpath("./following-sibling::div")).findElements(By.xpath(".//div[@class='evnt-filter-item']"));
+        List<WebElement> filterValuesList = element
+                .findElement(filtersValueContainerLocator)
+                .findElements(filtersValueLocator);
         Map<String, WebElement> filterValuesMap = new HashMap<>();
         for (WebElement elem : filterValuesList) {
             WebElement filterValue = elem.findElement(By.tagName("label"));
@@ -114,7 +124,7 @@ public class VideoPage extends AbstractPage {
     }
 
     public List<WebElement> getTalksCards() {
-        return driver.findElements(By.className("evnt-talk-card"));
+        return driver.findElements(talkCardLocator);
     }
 
     @Step("Go to Talks card number {0}")

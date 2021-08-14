@@ -14,15 +14,24 @@ import java.util.Locale;
 
 public class EventsPage extends AbstractPage {
 
+    private final String locationFilterId = "filter_location";
     private final String eventCardsContainerXPath = "//div[@class='evnt-cards-container']";
+    private final String pastEventButtonXPath = "//span[contains(text(), 'Past')]/parent::*";
     private final String upcomingEventCardsCounterXPath = "//span[contains(text(), 'Upcoming')]" +
             "/parent::*/span[contains(@class, 'evnt-label')]";
     private final String pastEventCardsCounterXPath = "//span[contains(text(), 'Past')]" +
             "/parent::*/span[contains(@class, 'evnt-label')]";
-    private final String eventCardXPath = "//div[contains(@class, 'evnt-event-card')]";
-    private final String pastEventButtonXPath = "//span[contains(text(), 'Past')]/parent::*";
 
-    private final By eventCardLocator = By.xpath(eventCardXPath);
+    private final By eventCardLocator = By.xpath("//div[contains(@class, 'evnt-event-card')]");
+    private final By speakerPhotoLocator = By.xpath(".//div[@class='evnt-photo-wrapper']");
+    private final By eventCardLanguageLocator = By.xpath(".//div[contains(@class,'language-cell')]");
+    private final By eventCardNameLocator = By.xpath(".//div[contains(@class,'evnt-event-name')]");
+    private final By eventDateContainerLocator = By.xpath(".//div[contains(@class,'evnt-dates-cell')]");
+    private final By eventDateLocator = By.xpath(".//span[@class='date']");
+    private final By eventStatusLocator = By.xpath(".//span[contains(@class,'status')]");
+    private final By speakerNameLocator = By.xpath("//div[@class='evnt-speaker-name']");
+    private final By searchLocationFieldLocator = By.xpath("./following-sibling::div" +
+            "//input[contains(@class,'evnt-text-fields')]");
 
     public EventsPage(WebDriver driver) {
         super(driver);
@@ -39,6 +48,9 @@ public class EventsPage extends AbstractPage {
 
     @FindBy(xpath = pastEventButtonXPath)
     WebElement pastEventButton;
+
+    @FindBy(id = locationFilterId)
+    WebElement locationFilter;
 
     @Step("Validate count of upcoming events")
     public int getUpcomingEventsCounterValue() {
@@ -59,7 +71,6 @@ public class EventsPage extends AbstractPage {
     public EventsPage pastEventClick() {
         waitUntilBecomesVisible(pastEventButton).click();
         waitGlobalLoad();
-        //justWait(1000L);
         return new EventsPage(driver);
     }
 
@@ -69,52 +80,47 @@ public class EventsPage extends AbstractPage {
 
     private String getEventLanguage(WebElement element) {
         return element
-                .findElement(By.xpath(".//div[contains(@class,'language-cell')]"))
+                .findElement(eventCardLanguageLocator)
                 .findElement(By.tagName("span"))
                 .getText();
     }
 
     private String getEventName(WebElement element) {
         return element
-                .findElement(By.xpath(".//div[contains(@class,'evnt-event-name')]"))
+                .findElement(eventCardNameLocator)
                 .findElement(By.tagName("span"))
                 .getText();
     }
 
     public String getEventDate(WebElement element) {
         return element
-                .findElement(By.xpath(".//div[contains(@class,'evnt-dates-cell')]"))
-                .findElement(By.xpath(".//span[@class='date']"))
+                .findElement(eventDateContainerLocator)
+                .findElement(eventDateLocator)
                 .getText();
     }
 
     private String getEventStatus(WebElement element) {
         return element
-                .findElement(By.xpath(".//div[contains(@class,'evnt-dates-cell')]"))
-                .findElement(By.xpath(".//span[contains(@class,'status')]"))
+                .findElement(eventDateContainerLocator)
+                .findElement(eventStatusLocator)
                 .getText();
     }
 
     private String getEventSpeakerName(WebElement element) {
-        WebElement photo = element
-                .findElement(By.xpath(".//div[@class='evnt-photo-wrapper']"));
         scrollDown();
-        moveToElement(photo);
-        return driver
-                .findElement(By.xpath("//div[@class='evnt-speaker-name']"))
-                .getText();
+        moveToElement(element.findElement(speakerPhotoLocator));
+        return driver.findElement(speakerNameLocator).getText();
     }
 
-    @Step("Validate card's information")
+    @Step("Validate card number {0} information")
     public List<String> getCardInfo(int cardNumber) {
         List<WebElement> elementList = getListOfCards();
-        WebElement selectedElement = elementList.get(cardNumber);
-        String eventLanguage = getEventLanguage(selectedElement);
-        String eventName = getEventName(selectedElement);
-        String eventDate = getEventDate(selectedElement);
-        String eventStatus = getEventStatus(selectedElement);
-        String speakerName = getEventSpeakerName(selectedElement);
-        return Arrays.asList(eventLanguage, eventName, eventDate, eventStatus, speakerName);
+        WebElement selectedElement = elementList.get(cardNumber - 1);
+        return Arrays.asList(getEventLanguage(selectedElement),
+                getEventName(selectedElement),
+                getEventDate(selectedElement),
+                getEventStatus(selectedElement),
+                getEventSpeakerName(selectedElement));
     }
 
     public static LocalDate[] parseEventDate(String unformattedDate) {
@@ -144,17 +150,15 @@ public class EventsPage extends AbstractPage {
     @Step("Comparing event date")
     public static boolean checkDate(LocalDate[] eventDate) {
         LocalDate dateNow = LocalDate.now();
-        return (eventDate[0].isBefore(dateNow) || (eventDate[0].isEqual(dateNow)))
-                && (eventDate[1].isAfter(dateNow) || (eventDate[1].isEqual(dateNow)));
+        return (eventDate[1].isAfter(dateNow) || (eventDate[1].isEqual(dateNow)));
     }
 
+    @Step("Select {0} location")
     public EventsPage selectLocation(String location) {
-        WebElement locationFilter = driver.findElement(By.id("filter_location"));
         locationFilter.click();
-        locationFilter.findElement(By.xpath("./following-sibling::div//input[contains(@class,'evnt-text-fields')]")).sendKeys(location);
+        locationFilter.findElement(searchLocationFieldLocator).sendKeys(location);
         driver.findElement(By.xpath("//span[text()='" + location + "']")).click();
         waitGlobalLoad();
-        //justWait(1000L);
         return new EventsPage(driver);
     }
 
