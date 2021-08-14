@@ -14,7 +14,7 @@ public class Setup {
 
     @BeforeClass(description = "Initialize web driver")
     public void startUp() {
-        driver = WebDriverFactory.createDriver(WebDriverType.CHROME);
+        driver = WebDriverFactory.createDriver(WebDriverType.FIREFOX);
         //driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().window().maximize();
         logger.info("Driver initialized!");
