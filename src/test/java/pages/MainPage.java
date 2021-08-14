@@ -29,6 +29,7 @@ public class MainPage extends AbstractPage {
     @Step("Go to video page")
     public VideoPage goToVideoPage() {
         driver.findElement(videoButtonLocator).click();
+        waitGlobalLoad();
         return new VideoPage(driver);
     }
 

@@ -22,10 +22,10 @@ public abstract class AbstractPage {
         return new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOf(element));
     }
 
-    protected WebElement waitGlobalLoad() {
-        return new WebDriverWait(driver, 10)
+    protected void waitGlobalLoad() {
+        new WebDriverWait(driver, 10)
                 .until(ExpectedConditions
-                        .visibilityOf(driver.findElement(By.xpath("//div[contains(@class,'loader')]"))));
+                        .invisibilityOf(driver.findElement(By.xpath("//div[contains(@class,'loader')]"))));
     }
 
     protected void justWait(Long milliseconds) {
