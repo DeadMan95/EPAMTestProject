@@ -16,7 +16,6 @@ public class Setup {
     public void startUp() {
         driver = WebDriverFactory.createDriver(WebDriverType.CHROME);
         //driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        //driver.manage().window().maximize();
         logger.info("Driver initialized!");
     }
 

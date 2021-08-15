@@ -19,7 +19,6 @@ import java.util.List;
 @Feature("View events")
 public class TestEPAM extends Setup {
 
-
     private final String testLocationCanada = "Canada";
     private final String testLocationBelarus = "Belarus";
     private final String testLanguage = "ENGLISH";
@@ -29,7 +28,6 @@ public class TestEPAM extends Setup {
     private final String testFilterTypeLanguage = "Language";
     private final String testFilterTypeLocation = "Location";
     private final int testCardNumber = 2;
-
 
     @Test(description = "View upcoming events")
     @Story("View upcoming events")
