@@ -25,6 +25,7 @@ public abstract class AbstractPage {
 
     /**
      * Ожидание видимости элемента 10 сек
+     *
      * @param element веб элемент, появление которого нужно ждать
      */
     protected WebElement waitUntilBecomesVisible(WebElement element) {
@@ -35,13 +36,16 @@ public abstract class AbstractPage {
      * Ожидание исчезновения лоадера, т.е. ожидание окончания загрузки страницы
      */
     protected void waitGlobalLoad() {
-        new WebDriverWait(driver, 10)
-                .until(ExpectedConditions
-                        .invisibilityOf(driver.findElement(By.xpath(globalLoaderXPath))));
+        if (driver.findElements(By.xpath(globalLoaderXPath)).size() > 0) {
+            new WebDriverWait(driver, 10)
+                    .until(ExpectedConditions
+                            .invisibilityOf(driver.findElement(By.xpath(globalLoaderXPath))));
+        }
     }
 
     /**
      * Функция наводит указаьтель мыши на передаваемый элемент
+     *
      * @param element веб элемент, на который требуется навести указаьтель мыши
      */
     protected void moveToElement(WebElement element) {

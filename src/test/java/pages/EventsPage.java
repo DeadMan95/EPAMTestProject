@@ -172,11 +172,11 @@ public class EventsPage extends AbstractPage {
         return dates;
     }
 
-    @Step("Comparing event date")
+    /*@Step("Comparing event date")
     public static boolean checkDate(LocalDate[] eventDate) {
         LocalDate dateNow = LocalDate.now();
         return (eventDate[1].isAfter(dateNow) || (eventDate[1].isEqual(dateNow)));
-    }
+    }*/
 
     @Step("Select {0} location")
     public EventsPage selectLocation(String location) {

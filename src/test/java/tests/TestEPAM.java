@@ -66,7 +66,14 @@ public class TestEPAM extends Setup {
                 .open()
                 .goToEventsPage()
                 .getListOfCards();
-        Assert.assertTrue(EventsPage.checkDate(EventsPage.parseEventDate(eventsPage.getEventDate(cardList.get(0)))));
+
+        //Получение даты начала и даты конца карточки события в виде массива из 2-х элементов
+        String eventDate = eventsPage.getEventDate(cardList.get(0));
+        LocalDate[] eventDates = EventsPage.parseEventDate(eventDate);
+
+        boolean endDateIsLessThanNow = !(eventDates[1].isAfter(LocalDate.now()) ||
+                                        (eventDates[1].isEqual(LocalDate.now())));
+        Assert.assertFalse(endDateIsLessThanNow, "End date < sysdate!");
     }
 
     @Test(description = "Search events by location")
@@ -83,8 +90,13 @@ public class TestEPAM extends Setup {
                 .getCountOfEventsOnPage();
         int counterValue = eventsPage.getPastEventsCounterValue();
         Assert.assertEquals(countOfEventsOnPage, counterValue, "Cards quantity does not match!");
-        LocalDate[] dates = EventsPage.parseEventDate(eventsPage.getEventDate(eventsPage.getListOfCards().get(0)));
-        Assert.assertTrue(dates[1].isBefore(LocalDate.now()));
+
+        //Получение даты начала и даты конца карточки события в виде массива из 2-х элементов
+        List<WebElement> listOfCardsOnPage = eventsPage.getListOfCards();
+        String eventDate = eventsPage.getEventDate(listOfCardsOnPage.get(0));
+        LocalDate[] dates = EventsPage.parseEventDate(eventDate);
+
+        Assert.assertTrue(dates[1].isBefore(LocalDate.now()), "End date >= sysdate!");
     }
 
     @Test(description = "Filtering events by several parameters")
@@ -102,9 +114,9 @@ public class TestEPAM extends Setup {
         String talkLocation = talkCardPage.getTalkLocation();
         String talkLanguage = talkCardPage.getTalkLanguage();
         List<String> talkCategories = talkCardPage.getTalkCategories();
-        Assert.assertTrue(talkLocation.contains(testLocationBelarus));
-        Assert.assertTrue(talkLanguage.contains(testLanguage));
-        Assert.assertTrue(talkCategories.contains(testTopic));
+        Assert.assertTrue(talkLocation.contains(testLocationBelarus), "Card location not contains the search string");
+        Assert.assertTrue(talkLanguage.contains(testLanguage), "Card language not contains the search string");
+        Assert.assertTrue(talkCategories.contains(testTopic), "Card topic not contains the search string");
     }
 
     @Test(description = "Search talks")
