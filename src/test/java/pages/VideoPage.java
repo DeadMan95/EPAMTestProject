@@ -64,7 +64,8 @@ public class VideoPage extends AbstractPage {
     public VideoPage searchEvents(String searchValue) {
         waitUntilBecomesVisible(searchInput).sendKeys(searchValue);
         logger.info("Searching talks by " + searchValue);
-        waitGlobalLoad();
+        waitStartOfGlobalLoad();
+        waitEndOfGlobalLoad();
         return new VideoPage(driver);
     }
 
@@ -84,7 +85,7 @@ public class VideoPage extends AbstractPage {
 
     @Step("Click \"More filters\"")
     public VideoPage moreFiltersClick() {
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         moreFiltersButton.click();
         return new VideoPage(driver);
     }
@@ -123,7 +124,7 @@ public class VideoPage extends AbstractPage {
         filterTypeElement.click();
         Map<String, WebElement> filterValuesMap = getFilterValuesMap(filterTypeElement);
         filterValuesMap.get(value).click();
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         filterTypeElement.click();
         logger.info("Apply " + filterType + " filter with value " + value);
         return new VideoPage(driver);
@@ -136,7 +137,7 @@ public class VideoPage extends AbstractPage {
     @Step("Go to Talks card number {0}")
     public TalkCardPage goToTalkCard(int cardNumber) {
         getTalksCards().get(cardNumber - 1).click();
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         logger.info("Go to talk number " + cardNumber);
         return new TalkCardPage(driver);
     }

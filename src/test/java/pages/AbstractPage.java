@@ -33,13 +33,24 @@ public abstract class AbstractPage {
     }
 
     /**
-     * Ожидание исчезновения лоадера, т.е. ожидание окончания загрузки страницы
+     * Ожидание исчезновения лоадера, т.е. ожидание окончания загрузки на странице
      */
-    protected void waitGlobalLoad() {
+    protected void waitEndOfGlobalLoad() {
         if (driver.findElements(By.xpath(globalLoaderXPath)).size() > 0) {
             new WebDriverWait(driver, 10)
                     .until(ExpectedConditions
                             .invisibilityOf(driver.findElement(By.xpath(globalLoaderXPath))));
+        }
+    }
+
+    /**
+     * Ожидание появления лоадера, т.е. ожидание начала загрузки  на странице
+     */
+    protected void waitStartOfGlobalLoad() {
+        if (driver.findElements(By.xpath(globalLoaderXPath)).size() > 0) {
+            new WebDriverWait(driver, 10)
+                    .until(ExpectedConditions
+                            .visibilityOf(driver.findElement(By.xpath(globalLoaderXPath))));
         }
     }
 

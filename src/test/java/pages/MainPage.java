@@ -24,21 +24,21 @@ public class MainPage extends AbstractPage {
     @Step("Open main page")
     public MainPage open() {
         driver.get(url);
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         return new MainPage(driver);
     }
 
     @Step("Go to events page")
     public EventsPage goToEventsPage() {
         eventsButton.click();
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         return new EventsPage(driver);
     }
 
     @Step("Go to video page")
     public VideoPage goToVideoPage() {
         videoButton.click();
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         return new VideoPage(driver);
     }
 

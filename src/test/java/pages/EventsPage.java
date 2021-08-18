@@ -79,7 +79,7 @@ public class EventsPage extends AbstractPage {
     @Step("Go to Past events page")
     public EventsPage pastEventClick() {
         waitUntilBecomesVisible(pastEventButton).click();
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         return new EventsPage(driver);
     }
 
@@ -184,7 +184,7 @@ public class EventsPage extends AbstractPage {
         locationFilter.findElement(searchLocationFieldLocator).sendKeys(location);
         driver.findElement(By.xpath("//span[text()='" + location + "']")).click();
         logger.info("Select location filter with value = " + location);
-        waitGlobalLoad();
+        waitEndOfGlobalLoad();
         return new EventsPage(driver);
     }
 
